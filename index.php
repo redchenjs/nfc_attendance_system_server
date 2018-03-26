@@ -29,19 +29,27 @@ case 100:   // 设备端请求验证$user_token
     break;
 case 101:   // 微信端获取$user_id
     $wx_code = $data['code'];
-    if (($wx_openid = getOpenID($wx_code)) !== null
-        && ($user_id = getUserID($wx_openid)) !== null
-    ) {
-        $last_info = getLastInfo($user_id);
-        $arr = array(
-            'status' => true,
-            'stuNum' => $user_id,
-            'lastTime' => $last_info['submit_time'],
-            'lastLocation' => $last_info['device_location']
-        );
+    if (($wx_openid = getOpenID($wx_code)) !== null) {
+        if ($wx_openid === 'null') {
+            $arr = array(
+                'status' => 'null'
+            );
+        } else if (($user_id = getUserID($wx_openid)) !== null) {
+            $last_info = getLastInfo($user_id);
+            $arr = array(
+                'status' => true,
+                'stuNum' => $user_id,
+                'lastTime' => $last_info['submit_time'],
+                'lastLocation' => $last_info['device_location']
+            );
+        } else {
+            $arr = array(
+                'status' => false
+            );
+        }
     } else {
         $arr = array(
-            'status' => false
+            'status' => null
         );
     }
     header('content-type:application/json');
@@ -49,16 +57,24 @@ case 101:   // 微信端获取$user_id
     break;
 case 102:   // 微信端获取$user_token
     $wx_code = $data['code'];
-    if (($wx_openid = getOpenID($wx_code)) !== null
-        && ($wx_token = getUserToken($wx_openid)) !== null
-    ) {
-        $arr = array(
-            'status' => true,
-            'token'  => $wx_token
-        );
+    if (($wx_openid = getOpenID($wx_code)) !== null) {
+        if ($wx_openid === 'null') {
+            $arr = array(
+                'status' => 'null'
+            );
+        } else if (($wx_token = getUserToken($wx_openid)) !== null) {
+            $arr = array(
+                'status' => true,
+                'token'  => $wx_token
+            );
+        } else {
+            $arr = array(
+                'status' => false
+            );
+        }
     } else {
         $arr = array(
-            'status' => false
+            'status' => null
         );
     }
     header('content-type:application/json');
@@ -68,16 +84,24 @@ case 103:   // 微信端绑定$user_id
     $wx_code = $data['code'];
     $user_id = $data['stuNum'];
     $user_passwd = $data['stuPwd'];
-    if (($wx_openid = getOpenID($wx_code)) !== null
-        && ($err = bindUser($wx_openid, $user_id, $user_passwd)) === true
-    ) {
-        $arr = array(
-            'status' => true
-        );
+    if (($wx_openid = getOpenID($wx_code)) !== null) {
+        if ($wx_openid === 'null') {
+            $arr = array(
+                'status' => 'null'
+            );
+        } else if (($err = bindUser($wx_openid, $user_id, $user_passwd)) === true) {
+            $arr = array(
+                'status' => true
+            );
+        } else {
+            $arr = array(
+                'status' => false,
+                'errMsg' => $err
+            );
+        }
     } else {
         $arr = array(
-            'status' => false,
-            'errMsg' => $err
+            'status' => null
         );
     }
     header('content-type:application/json');
@@ -86,16 +110,24 @@ case 103:   // 微信端绑定$user_id
 case 104:   // 微信端解绑$user_id
     $wx_code = $data['code'];
     $user_id = $data['stuNum'];
-    if (($wx_openid = getOpenID($wx_code)) !== null
-        && ($err = unbindUser($wx_openid, $user_id)) === true
-    ) {
-        $arr = array(
-            'status' => true
-        );
+    if (($wx_openid = getOpenID($wx_code)) !== null) {
+        if ($wx_openid === 'null') {
+            $arr = array(
+                'status' => 'null'
+            );
+        } else if (($err = unbindUser($wx_openid, $user_id)) === true) {
+            $arr = array(
+                'status' => true
+            );
+        } else {
+            $arr = array(
+                'status' => false,
+                'errMsg' => $err
+            );
+        }
     } else {
         $arr = array(
-            'status' => false,
-            'errMsg' => $err
+            'status' => null
         );
     }
     header('content-type:application/json');
