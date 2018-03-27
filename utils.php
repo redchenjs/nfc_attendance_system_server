@@ -329,51 +329,48 @@ function bindUser($wx_openid, $user_id, $user_passwd)
     if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) != null) {
         // $user_id记录存在，校验密码
         if ($user_passwd == $row['user_passwd']) {
-            // 密码校验通过，使用$wx_openid查询$user_id
+            // 密码校验通过，查找$user_id是否已被绑定
             $sql = "SELECT `user_id` FROM `wechat_tbl` ".
-                    "WHERE BINARY `wx_openid`='".$wx_openid."'";
+                    "WHERE BINARY `user_id`='".$user_id."'";
             $retval = mysqli_query($conn, $sql);
             if (!$retval) {
                 die('query err: '.mysqli_error($conn));
             }
             // 整理查询结果
             if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) != null) {
-                // 查到$wx_openid，判断$user_id是否已被绑定
-                if ($row['user_id'] == 'null') {
-                    // $user_id未被绑定，生成$user_token
-                    $user_token = md5(
-                        $wx_openid.$user_id.$user_passwd.date('Y-m-d H:i:s')
-                    );
-                    // 更新$wx_openid对应的$user_id和$user_token
-                    $sql = "UPDATE `wechat_tbl` ".
-                    "SET `user_id`='".$user_id."', `user_token`='".$user_token."'".
-                    "WHERE BINARY `wx_openid`='".$wx_openid."'";
-                    $retval = mysqli_query($conn, $sql);
-                    if (! $retval ) {
-                        die('query err: '.mysqli_error($conn));
-                    }
-                    // 记录日志
-                    $sql = "INSERT INTO `log_tbl` ".
-                        "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                        "VALUES ('".$user_id."', '微信绑定', NOW(), '成功')";
-                    $retval = mysqli_query($conn, $sql);
-                    if (!$retval) {
-                        die('query err: '.mysqli_error($conn));
-                    }
-                    // 返回结果
-                    return true;
-                } else {
-                    // $user_id已被绑定，记录日志
-                    $sql = "INSERT INTO `log_tbl` ".
-                        "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                        "VALUES ('".$user_id."', '微信绑定', NOW(), '失败：用户已被绑定')";
-                    $retval = mysqli_query($conn, $sql);
-                    if (!$retval) {
-                        die('query err: '.mysqli_error($conn));
-                    }
-                    // 返回错误信息
-                    return '用户已被绑定';
+                // $user_id已被绑定，记录日志
+                $sql = "INSERT INTO `log_tbl` ".
+                    "(`user_id`, `device_location`, `submit_time`, `comment`) ".
+                    "VALUES ('".$user_id."', '微信绑定', NOW(), '失败：用户已被绑定')";
+                $retval = mysqli_query($conn, $sql);
+                if (!$retval) {
+                    die('query err: '.mysqli_error($conn));
                 }
+                // 返回错误信息
+                return '用户已被绑定';
+            } else {
+                // $user_id未被绑定，生成$user_token
+                $user_token = md5(
+                    $wx_openid.$user_id.$user_passwd.date('Y-m-d H:i:s')
+                );
+                // 更新$wx_openid对应的$user_id和$user_token
+                $sql = "UPDATE `wechat_tbl` ".
+                "SET `user_id`='".$user_id."', `user_token`='".$user_token."'".
+                "WHERE BINARY `wx_openid`='".$wx_openid."'";
+                $retval = mysqli_query($conn, $sql);
+                if (! $retval ) {
+                    die('query err: '.mysqli_error($conn));
+                }
+                // 记录日志
+                $sql = "INSERT INTO `log_tbl` ".
+                    "(`user_id`, `device_location`, `submit_time`, `comment`) ".
+                    "VALUES ('".$user_id."', '微信绑定', NOW(), '成功')";
+                $retval = mysqli_query($conn, $sql);
+                if (!$retval) {
+                    die('query err: '.mysqli_error($conn));
+                }
+                // 返回结果
+                return true;
             }
         } else {
             // 密码校验不通过，记录日志
