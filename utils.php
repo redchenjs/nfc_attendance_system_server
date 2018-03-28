@@ -480,12 +480,15 @@ function listLog()
 
     // 查询log_tbl中的所有列
     $sql = "SELECT `user_id`, `device_location`, `submit_time`, `comment` ".
-            "FROM `log_tbl`";
+            "FROM `log_tbl` ORDER BY `submit_time` DESC LIMIT 20";
     $retval = mysqli_query($conn, $sql);
     if (!$retval) {
         die('query err: '.mysqli_error($conn));
     }
     // 输出查询结果
+    echo '<header>';
+    echo '<meta http-equiv="refresh" content="3">';
+    echo '</header>';
     echo '<h2>NFC考勤系统日志<h2>';
     echo '<table border="1"><tr>'.
             '<td>用户</td>'.
