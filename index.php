@@ -39,7 +39,7 @@ case 101:   // 微信端获取$user_id
             $arr = array(
                 'status' => true,
                 'stuNum' => $user_id,
-                'lastTime' => $last_info['submit_time'],
+                'lastTime' => $last_info['create_time'],
                 'lastLocation' => $last_info['device_location']
             );
         } else {

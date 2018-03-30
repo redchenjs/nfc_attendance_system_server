@@ -60,8 +60,8 @@ function verifyUserToken($device_mac, $user_token)
         }
         // 记录日志
         $sql = "INSERT INTO `log_tbl` ".
-                "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                "VALUES ('".$user_id."', '".$device_location."', NOW(), '签到')";
+                "(`user_id`, `device_location`, `comment`) ".
+                "VALUES ('".$user_id."', '".$device_location."', '签到')";
         $retval = mysqli_query($conn, $sql);
         if (!$retval) {
             die('query err: '.mysqli_error($conn));
@@ -71,8 +71,8 @@ function verifyUserToken($device_mac, $user_token)
     } else {
         // 没有查到$user_token，记录日志
         $sql = "INSERT INTO `log_tbl` ".
-                "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                "VALUES ('".$user_id."', '".$device_location."', NOW(), '失败：验证错误')";
+                "(`user_id`, `device_location`, `comment`) ".
+                "VALUES ('".$user_id."', '".$device_location."', '失败：验证错误')";
         $retval = mysqli_query($conn, $sql);
         if (!$retval) {
             die('query err: '.mysqli_error($conn));
@@ -233,10 +233,10 @@ function getLastInfo($user_id)
     mysqli_query($conn, "set names utf8");
     mysqli_select_db($conn, 'nas_db');
 
-    // 使用$user_id查找$device_location和$submit_time
-    $sql = "SELECT `device_location`, `submit_time` FROM `log_tbl` ".
+    // 使用$user_id查找$device_location和$create_time
+    $sql = "SELECT `device_location`, `create_time` FROM `log_tbl` ".
             "WHERE BINARY `user_id`='".$user_id."' AND `comment`='签到' ".
-            "ORDER BY `submit_time` DESC LIMIT 0,1";
+            "ORDER BY `create_time` DESC LIMIT 0,1";
     $retval = mysqli_query($conn, $sql);
     if (!$retval) {
         die('query err: '.mysqli_error($conn));
@@ -246,13 +246,13 @@ function getLastInfo($user_id)
         // 记录存在
         $last_info = array(
             'device_location' => $row['device_location'],
-            'submit_time' => $row['submit_time']
+            'create_time' => $row['create_time']
         );
     } else {
         // 记录不存在
         $last_info = array(
             'device_location' => '无',
-            'submit_time' => '无'
+            'create_time' => '无'
         );
     }
     // 返回结果
@@ -340,8 +340,8 @@ function bindUser($wx_openid, $user_id, $user_passwd)
             if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) != null) {
                 // $user_id已被绑定，记录日志
                 $sql = "INSERT INTO `log_tbl` ".
-                    "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                    "VALUES ('".$user_id."', '微信绑定', NOW(), '失败：用户已被绑定')";
+                    "(`user_id`, `device_location`, `comment`) ".
+                    "VALUES ('".$user_id."', '微信绑定', '失败：用户已被绑定')";
                 $retval = mysqli_query($conn, $sql);
                 if (!$retval) {
                     die('query err: '.mysqli_error($conn));
@@ -363,8 +363,8 @@ function bindUser($wx_openid, $user_id, $user_passwd)
                 }
                 // 记录日志
                 $sql = "INSERT INTO `log_tbl` ".
-                    "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                    "VALUES ('".$user_id."', '微信绑定', NOW(), '成功')";
+                    "(`user_id`, `device_location`, `comment`) ".
+                    "VALUES ('".$user_id."', '微信绑定', '成功')";
                 $retval = mysqli_query($conn, $sql);
                 if (!$retval) {
                     die('query err: '.mysqli_error($conn));
@@ -375,8 +375,8 @@ function bindUser($wx_openid, $user_id, $user_passwd)
         } else {
             // 密码校验不通过，记录日志
             $sql = "INSERT INTO `log_tbl` ".
-                    "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                    "VALUES ('".$user_id."', '微信绑定', NOW(), '失败：密码错误')";
+                    "(`user_id`, `device_location`, `comment`) ".
+                    "VALUES ('".$user_id."', '微信绑定', '失败：密码错误')";
             $retval = mysqli_query($conn, $sql);
             if (!$retval) {
                 die('query err: '.mysqli_error($conn));
@@ -387,8 +387,8 @@ function bindUser($wx_openid, $user_id, $user_passwd)
     } else {
         // $user_id记录不存在，记录日志
         $sql = "INSERT INTO `log_tbl` ".
-                "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                "VALUES ('".$user_id."', '微信绑定', NOW(), '失败：用户不存在')";
+                "(`user_id`, `device_location`, `comment`) ".
+                "VALUES ('".$user_id."', '微信绑定', '失败：用户不存在')";
         $retval = mysqli_query($conn, $sql);
         if (!$retval) {
             die('query err: '.mysqli_error($conn));
@@ -438,8 +438,8 @@ function unbindUser($wx_openid, $user_id)
         }
         // 记录日志
         $sql = "INSERT INTO `log_tbl` ".
-                "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                "VALUES ('".$user_id."', '微信解绑', NOW(), '成功')";
+                "(`user_id`, `device_location`, `comment`) ".
+                "VALUES ('".$user_id."', '微信解绑', '成功')";
         $retval = mysqli_query($conn, $sql);
         if (!$retval) {
             die('query err: '.mysqli_error($conn));
@@ -449,8 +449,8 @@ function unbindUser($wx_openid, $user_id)
     } else {
         // $user_id记录不存在，记录日志
         $sql = "INSERT INTO `log_tbl` ".
-                "(`user_id`, `device_location`, `submit_time`, `comment`) ".
-                "VALUES ('".$user_id."', '微信解绑', NOW(), '失败：用户不存在')";
+                "(`user_id`, `device_location`, `comment`) ".
+                "VALUES ('".$user_id."', '微信解绑', '失败：用户不存在')";
         $retval = mysqli_query($conn, $sql);
         if (!$retval) {
             die('query err: '.mysqli_error($conn));
@@ -478,9 +478,10 @@ function listLog()
     mysqli_query($conn, "set names utf8");
     mysqli_select_db($conn, 'nas_db');
 
-    // 查询log_tbl中的所有列
-    $sql = "SELECT `user_id`, `device_location`, `submit_time`, `comment` ".
-            "FROM `log_tbl` ORDER BY `submit_time` DESC LIMIT 20";
+    // 查询log_tbl中的最后20列
+    $sql = "SELECT * FROM ".
+            "(SELECT * FROM `log_tbl` ORDER BY `create_time` DESC LIMIT 20) ".
+            "AS `tbl` ORDER BY `create_time` ASC";
     $retval = mysqli_query($conn, $sql);
     if (!$retval) {
         die('query err: '.mysqli_error($conn));
@@ -489,18 +490,18 @@ function listLog()
     echo '<header>';
     echo '<meta http-equiv="refresh" content="3">';
     echo '</header>';
-    echo '<h2>NFC考勤系统日志<h2>';
-    echo '<table border="1"><tr>'.
-            '<td>用户</td>'.
-            '<td>位置</td>'.
-            '<td>操作时间</td>'.
-            '<td>备注</td>'.
-            '</tr>';
+    echo '<h2> NFC考勤系统日志 <h2>';
+    echo '<table border="1" width=75%><tr>'.
+            '<td> 用户 </td>'.
+            '<td> 位置 </td>'.
+            '<td> 操作时间 </td>'.
+            '<td> 备注 </td>'.
+         '</tr>';
     while ($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) {
         echo '<tr>'.
                 '<td> '.$row['user_id'].' </td> '.
                 '<td> '.$row['device_location'].' </td> '.
-                '<td> '.$row['submit_time'].' </td> '.
+                '<td> '.$row['create_time'].' </td> '.
                 '<td> '.$row['comment'].' </td> '.
              '</tr>';
     }
