@@ -133,6 +133,11 @@ case 104:   // 微信端解绑$user_id
     header('content-type:application/json');
     echo json_encode($arr);
     break;
+case 105:   // 设备端固件更新
+    $device_mac = $data['mac'];
+    $firmware_version = $data['version'];
+    getFirmwareUpdate($device_mac, $firmware_version);
+    break;
 default:    // 其他请求
     listLog();
     break;

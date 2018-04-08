@@ -460,7 +460,114 @@ function unbindUser($wx_openid, $user_id)
     }
 }
 
-/**  
+/**
+ * 使用$device_mac和$firmware_version检索数据库决定设备是否需要更新，是则返回更新数据，否则返回空数据
+ *
+ * @param string $device_mac       Device MAC Address
+ * @param string $firmware_version Firmware Version
+ *
+ * @return null/file
+ */
+function getFirmwareUpdate($device_mac, $firmware_version)
+{
+    $dbhost = 'localhost:3306';  // mysql服务器主机地址
+    $dbuser = 'nasadmin';        // mysql用户名
+    $dbpass = 'naspasswd';       // mysql用户名密码
+    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    if (!$conn) {
+        die('conn err: '.mysqli_error($conn));
+    }
+    // 设置编码，防止中文乱码
+    mysqli_query($conn, "set names utf8");
+    mysqli_select_db($conn, 'nas_db');
+
+    // 查找$device_mac是否存在
+    $sql = "SELECT `device_mac` FROM `device_tbl` ".
+            "WHERE BINARY `device_mac`='".$device_mac."'";
+    $retval = mysqli_query($conn, $sql);
+    if (!$retval) {
+        die('query err: '.mysqli_error($conn));
+    }
+    // 整理查询结果
+    if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) != null) {
+        // $device_mac记录存在，更新数据库记录
+        $sql = "UPDATE `device_tbl` ".
+                "SET `running_version`='".$firmware_version."'".
+                "WHERE BINARY `device_mac`='".$device_mac."'";
+        $retval = mysqli_query($conn, $sql);
+        if (!$retval) {
+            die('query err: '.mysqli_error($conn));
+        }
+        // 使用$device_mac查找$required_version
+        $sql = "SELECT `required_version` FROM `device_tbl` ".
+                "WHERE BINARY `device_mac`='".$device_mac."'";
+        $retval = mysqli_query($conn, $sql);
+        if (!$retval) {
+            die('query err: '.mysqli_error($conn));
+        }
+        // 整理查询结果
+        if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) != null) {
+            if ($row['required_version'] != null
+                && $row['required_version'] != $firmware_version
+            ) {
+                $required_version = $row['required_version'];
+                // 记录日志
+                $sql = "INSERT INTO `log_tbl` ".
+                        "(`user_id`, `device_location`, `comment`) ".
+                        "VALUES ('".$device_mac."', '固件更新', '需要更新：从".
+                        $firmware_version."到".$required_version."')";
+                $retval = mysqli_query($conn, $sql);
+                if (!$retval) {
+                    die('query err: '.mysqli_error($conn));
+                }
+                $ftp_server = "localhost";
+                $ftp_user_name = "anonymous";
+                $ftp_user_pass = "";
+                // define some variables
+                $local_file = '/tmp/firmware.bin';
+                $server_file = 'pub/firmware/nas/nas_'.$required_version.'.bin';
+                // connect to the FTP server
+                $conn_id = ftp_connect($ftp_server);
+                ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+                // try to download
+                if (!ftp_get($conn_id, $local_file, $server_file, FTP_BINARY)) {
+                    return;
+                }
+                // close the connection
+                ftp_close($conn_id);
+                $firmware_file = "/tmp/firmware.bin";
+                $file = fopen($firmware_file, "rb");
+                header("Content-type: application/octet-stream");
+                header("Accept-Ranges: bytes");
+                header("Accept-Length: ".filesize($firmware_file));
+                header("Content-Disposition: attachment; filename=firmware.bin");
+                echo fread($file, filesize($firmware_file));
+                fclose($file);
+            } else {
+                // 没有新固件，记录日志
+                $sql = "INSERT INTO `log_tbl` ".
+                    "(`user_id`, `device_location`, `comment`) ".
+                    "VALUES ('".$device_mac."', '固件更新', '已为最新，当前运行版本：".
+                    $firmware_version."')";
+                $retval = mysqli_query($conn, $sql);
+                if (!$retval) {
+                    die('query err: '.mysqli_error($conn));
+                }
+            }
+        }
+    } else {
+        // $device_mac记录不存在，记录日志
+        $sql = "INSERT INTO `log_tbl` ".
+                "(`user_id`, `device_location`, `comment`) ".
+                "VALUES ('".$device_mac."', '固件更新', '失败：未授权的设备')";
+        $retval = mysqli_query($conn, $sql);
+        if (!$retval) {
+            die('query err: '.mysqli_error($conn));
+        }
+    }
+}
+
+/**
  * 显示系统日志
  * 
  * @return none
