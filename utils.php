@@ -162,7 +162,7 @@ function getOpenID($wx_code)
             }
         } else {
             // 不存在$wx_openid，则插入$wx_code和$wx_openid记录
-            $sql = "INSERT INTO `wechat_tbl` (`wx_code`, `wx_openid`) ".
+            $sql = "INSERT IGNORE INTO `wechat_tbl` (`wx_code`, `wx_openid`) ".
                     "VALUES ('".$wx_code."', '".$wx_openid."')";
             $retval = mysqli_query($conn, $sql);
             if (!$retval) {
