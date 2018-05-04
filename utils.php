@@ -7,7 +7,7 @@
  * @package  None
  * @author   Jack Chen <redchenjs@live.com>
  * @license  https://server.zyiot.top/nas public
- * @version  GIT: <1.0>
+ * @version  GIT: <2.0>
  * @link     https://server.zyiot.top/nas
  */ 
 
