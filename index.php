@@ -6,9 +6,9 @@
  * @category None
  * @package  None
  * @author   Jack Chen <redchenjs@live.com>
- * @license  https://redchenjs.vicp.net/nas public
+ * @license  https://server.zyiot.top/nas public
  * @version  GIT: <1.0>
- * @link     https://redchenjs.vicp.net/nas
+ * @link     https://server.zyiot.top/nas
  */ 
 
 require "utils.php";
