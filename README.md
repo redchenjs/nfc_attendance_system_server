@@ -1,2 +1,2 @@
-PHP Backend Server for NFC Attendence System
+PHP Backend Server for NFC Attendance System
 ============================================
