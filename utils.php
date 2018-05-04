@@ -6,9 +6,9 @@
  * @category None
  * @package  None
  * @author   Jack Chen <redchenjs@live.com>
- * @license  https://redchenjs.vicp.net/nas public
+ * @license  https://server.zyiot.top/nas public
  * @version  GIT: <1.0>
- * @link     https://redchenjs.vicp.net/nas
+ * @link     https://server.zyiot.top/nas
  */ 
 
 /**  
@@ -597,7 +597,7 @@ function listLog()
     echo '<header>';
     echo '<meta http-equiv="refresh" content="3">';
     echo '</header>';
-    echo '<h2> NFC考勤系统日志 <h2>';
+    echo '<h2> 智慧校园NFC考勤管理系统 <h2>';
     echo '<table border="1" width=75%><tr>'.
             '<td> 用户 </td>'.
             '<td> 位置 </td>'.
