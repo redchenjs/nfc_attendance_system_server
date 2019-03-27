@@ -1,15 +1,15 @@
 <?php
-/** 
+/**
  * File Name: index.php
  * PHP Version 7
- * 
+ *
  * @category None
  * @package  None
  * @author   Jack Chen <redchenjs@live.com>
  * @license  https://server.zyiot.top/nas public
  * @version  GIT: <v2.1>
  * @link     https://server.zyiot.top/nas
- */ 
+ */
 
 require "utils.php";
 
@@ -18,7 +18,7 @@ $data = json_decode($data, true);           // 解析JSON
 $request = $data['request'];                // 获取$request代码
 
 switch ($request) {
-case 100:   // 设备端请求验证$user_token
+case 100:   // 设备端请求口令验证
     $device_mac = $data['mac'];
     $user_token = $data['token'];
     $arr = array(
@@ -27,7 +27,7 @@ case 100:   // 设备端请求验证$user_token
     header('content-type:application/json');
     echo json_encode($arr);
     break;
-case 101:   // 微信端获取$user_id
+case 101:   // 微信端获取用户信息
     $wx_code = $data['code'];
     if (($wx_openid = getOpenID($wx_code)) !== null) {
         if ($wx_openid === 'null') {
@@ -55,7 +55,7 @@ case 101:   // 微信端获取$user_id
     header('content-type:application/json');
     echo json_encode($arr);
     break;
-case 102:   // 微信端获取$user_token
+case 102:   // 微信端获取验证口令
     $wx_code = $data['code'];
     if (($wx_openid = getOpenID($wx_code)) !== null) {
         if ($wx_openid === 'null') {
@@ -80,7 +80,7 @@ case 102:   // 微信端获取$user_token
     header('content-type:application/json');
     echo json_encode($arr);
     break;
-case 103:   // 微信端绑定$user_id
+case 103:   // 微信端绑定用户
     $wx_code = $data['code'];
     $user_id = $data['stuNum'];
     $user_passwd = $data['stuPwd'];
@@ -107,7 +107,7 @@ case 103:   // 微信端绑定$user_id
     header('content-type:application/json');
     echo json_encode($arr);
     break;
-case 104:   // 微信端解绑$user_id
+case 104:   // 微信端解绑用户
     $wx_code = $data['code'];
     $user_id = $data['stuNum'];
     if (($wx_openid = getOpenID($wx_code)) !== null) {
@@ -137,6 +137,34 @@ case 105:   // 设备端固件更新
     $device_mac = $data['mac'];
     $firmware_version = $data['version'];
     getFirmwareUpdate($device_mac, $firmware_version);
+    break;
+case 106:   // 微信端修改密码
+    $wx_code = $data['code'];
+    $user_id = $data['stuNum'];
+    $old_passwd = $data['oldPwd'];
+    $new_passwd = $data['newPwd'];
+    if (($wx_openid = getOpenID($wx_code)) !== null) {
+        if ($wx_openid === 'null') {
+            $arr = array(
+                'status' => 'null'
+            );
+        } else if (($err = updatePassword($wx_openid, $user_id, $old_passwd, $new_passwd)) === true) {
+            $arr = array(
+                'status' => true
+            );
+        } else {
+            $arr = array(
+                'status' => false,
+                'errMsg' => $err
+            );
+        }
+    } else {
+        $arr = array(
+            'status' => null
+        );
+    }
+    header('content-type:application/json');
+    echo json_encode($arr);
     break;
 default:    // 其他请求
     listLog();
