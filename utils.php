@@ -507,48 +507,66 @@ function getFirmwareUpdate($device_mac, $firmware_version)
         }
         // 整理查询结果
         if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) !== null) {
-            if ($row['required_version'] !== null
-                && $row['required_version'] !== $firmware_version
-            ) {
-                $required_version = $row['required_version'];
-                // 记录日志
+            if ($row['required_version'] !== '') {
+                if ($row['required_version'] !== $firmware_version) {
+                    $required_version = $row['required_version'];
+
+                    $ftp_server = "localhost";
+                    $ftp_user_name = "anonymous";
+                    $ftp_user_pass = "";
+                    // define some variables
+                    $local_file = '/tmp/firmware.bin';
+                    $server_file = 'pub/firmware/nas/nas_'.$required_version.'.bin';
+                    // connect to the FTP server
+                    $conn_id = ftp_connect($ftp_server);
+                    ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+                    // try to download
+                    if (ftp_get($conn_id, $local_file, $server_file, FTP_BINARY)) {
+                        $sql = "INSERT INTO `log_tbl` ".
+                                "(`user_id`, `device_location`, `comment`) ".
+                                "VALUES ('".$device_mac."', '固件更新', '正在更新，从".
+                                $firmware_version."到".$required_version."')";
+                        $retval = mysqli_query($conn, $sql);
+                        if (!$retval) {
+                            die('数据库异常');
+                        }
+                        $firmware_file = "/tmp/firmware.bin";
+                        $file = fopen($firmware_file, "rb");
+                        header("Content-type: application/octet-stream");
+                        header("Accept-Ranges: bytes");
+                        header("Accept-Length: ".filesize($firmware_file));
+                        header("Content-Disposition: attachment; filename=firmware.bin");
+                        echo fread($file, filesize($firmware_file));
+                        fclose($file);
+                    } else {
+                        $sql = "INSERT INTO `log_tbl` ".
+                                "(`user_id`, `device_location`, `comment`) ".
+                                "VALUES ('".$device_mac."', '固件更新', '失败：目标版本".
+                                $required_version."不存在')";
+                        $retval = mysqli_query($conn, $sql);
+                        if (!$retval) {
+                            die('数据库异常');
+                        }
+                    }
+                    // close the connection
+                    ftp_close($conn_id);
+                } else {
+                    // 没有新固件，记录日志
+                    $sql = "INSERT INTO `log_tbl` ".
+                            "(`user_id`, `device_location`, `comment`) ".
+                            "VALUES ('".$device_mac."', '固件更新', '已为最新，当前运行版本：".
+                            $firmware_version."')";
+                    $retval = mysqli_query($conn, $sql);
+                    if (!$retval) {
+                        die('数据库异常');
+                    }
+                }
+            } else {
+                // 更新已禁用，记录日志
                 $sql = "INSERT INTO `log_tbl` ".
                         "(`user_id`, `device_location`, `comment`) ".
-                        "VALUES ('".$device_mac."', '固件更新', '需要更新：从".
-                        $firmware_version."到".$required_version."')";
-                $retval = mysqli_query($conn, $sql);
-                if (!$retval) {
-                    die('数据库异常');
-                }
-                $ftp_server = "localhost";
-                $ftp_user_name = "anonymous";
-                $ftp_user_pass = "";
-                // define some variables
-                $local_file = '/tmp/firmware.bin';
-                $server_file = 'pub/firmware/nas/nas_'.$required_version.'.bin';
-                // connect to the FTP server
-                $conn_id = ftp_connect($ftp_server);
-                ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
-                // try to download
-                if (!ftp_get($conn_id, $local_file, $server_file, FTP_BINARY)) {
-                    return;
-                }
-                // close the connection
-                ftp_close($conn_id);
-                $firmware_file = "/tmp/firmware.bin";
-                $file = fopen($firmware_file, "rb");
-                header("Content-type: application/octet-stream");
-                header("Accept-Ranges: bytes");
-                header("Accept-Length: ".filesize($firmware_file));
-                header("Content-Disposition: attachment; filename=firmware.bin");
-                echo fread($file, filesize($firmware_file));
-                fclose($file);
-            } else {
-                // 没有新固件，记录日志
-                $sql = "INSERT INTO `log_tbl` ".
-                    "(`user_id`, `device_location`, `comment`) ".
-                    "VALUES ('".$device_mac."', '固件更新', '已为最新，当前运行版本：".
-                    $firmware_version."')";
+                        "VALUES ('".$device_mac."', '固件更新', '更新已禁用，当前运行版本：".
+                        $firmware_version."')";
                 $retval = mysqli_query($conn, $sql);
                 if (!$retval) {
                     die('数据库异常');
@@ -559,7 +577,7 @@ function getFirmwareUpdate($device_mac, $firmware_version)
         // $device_mac记录不存在，记录日志
         $sql = "INSERT INTO `log_tbl` ".
                 "(`user_id`, `device_location`, `comment`) ".
-                "VALUES ('".$device_mac."', '固件更新', '失败：未授权的设备')";
+                "VALUES ('".$device_mac."', '固件更新', '失败：设备未经授权')";
         $retval = mysqli_query($conn, $sql);
         if (!$retval) {
             die('数据库异常');
