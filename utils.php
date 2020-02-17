@@ -11,6 +11,17 @@
  * @link     https://server.zyiot.top/nas
  */
 
+const DB_HOST = 'localhost:3306';
+const DB_USER = 'nasadmin';
+const DB_PASS = 'naspasswd';
+const DB_NAME = 'nas_db';
+
+const FTP_HOST = 'localhost';
+const FTP_USER = 'anonymous';
+const FTP_PASS = '';
+
+const WX_APP_ID = 'wx8d7f06fb7ba10c2d';
+
 /**
  * 使用$user_token验证，将记入日志
  *
@@ -21,16 +32,16 @@
  */
 function verifyUserToken($device_mac, $user_token)
 {
-    $dbhost = 'localhost:3306'; // mysql服务器主机地址
-    $dbuser = 'nasadmin';       // mysql用户名
-    $dbpass = 'naspasswd';      // mysql用户密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 使用$user_token查找$user_id
     $sql = "SELECT `user_id` FROM `wechat_tbl` ".
@@ -91,16 +102,16 @@ function verifyUserToken($device_mac, $user_token)
  */
 function getOpenID($wx_code)
 {
-    $dbhost = 'localhost:3306'; // mysql服务器主机地址
-    $dbuser = 'nasadmin';       // mysql用户名
-    $dbpass = 'naspasswd';      // mysql用户密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 通过$wx_code查找$wx_openid
     $sql = "SELECT `wx_openid` FROM `wechat_tbl` ".
@@ -115,7 +126,7 @@ function getOpenID($wx_code)
         return $row['wx_openid'];
     } else { // 没有查到$wx_openid
         // 通过$app_id获取$app_secret
-        $app_id = "wx8d7f06fb7ba10c2d";
+        $app_id = WX_APP_ID;
         $sql = "SELECT `app_secret` FROM `secure_tbl` ".
                 "WHERE BINARY `app_id`='".$app_id."'";
         $retval = mysqli_query($conn, $sql);
@@ -183,16 +194,16 @@ function getOpenID($wx_code)
  */
 function getUserID($wx_openid)
 {
-    $dbhost = 'localhost:3306'; // mysql服务器主机地址
-    $dbuser = 'nasadmin';       // mysql用户名
-    $dbpass = 'naspasswd';      // mysql用户密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 使用$wx_openid查找$user_id
     $sql = "SELECT `user_id` FROM `wechat_tbl` ".
@@ -222,16 +233,16 @@ function getUserID($wx_openid)
  */
 function getLastInfo($user_id)
 {
-    $dbhost = 'localhost:3306'; // mysql服务器主机地址
-    $dbuser = 'nasadmin';       // mysql用户名
-    $dbpass = 'naspasswd';      // mysql用户密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 使用$user_id查找$device_location和$create_time
     $sql = "SELECT `device_location`, `create_time` FROM `log_tbl` ".
@@ -268,16 +279,16 @@ function getLastInfo($user_id)
  */
 function getUserToken($wx_openid)
 {
-    $dbhost = 'localhost:3306';  // mysql服务器主机地址
-    $dbuser = 'nasadmin';        // mysql用户名
-    $dbpass = 'naspasswd';       // mysql用户名密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 使用$wx_openid查找$user_token
     $sql = "SELECT `user_token` FROM `wechat_tbl` ".
@@ -307,16 +318,16 @@ function getUserToken($wx_openid)
  */
 function bindUser($wx_openid, $user_id, $user_passwd)
 {
-    $dbhost = 'localhost:3306';  // mysql服务器主机地址
-    $dbuser = 'nasadmin';        // mysql用户名
-    $dbpass = 'naspasswd';       // mysql用户名密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 使用$user_id查询$user_passwd
     $sql = "SELECT `user_passwd` FROM `user_tbl` ".
@@ -408,16 +419,16 @@ function bindUser($wx_openid, $user_id, $user_passwd)
  */
 function unbindUser($wx_openid, $user_id)
 {
-    $dbhost = 'localhost:3306';  // mysql服务器主机地址
-    $dbuser = 'nasadmin';        // mysql用户名
-    $dbpass = 'naspasswd';       // mysql用户名密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 使用$wx_openid查找$user_id
     $sql = "SELECT `user_id` FROM `wechat_tbl` ".
@@ -470,16 +481,16 @@ function unbindUser($wx_openid, $user_id)
  */
 function getFirmwareUpdate($device_mac, $firmware_version)
 {
-    $dbhost = 'localhost:3306';  // mysql服务器主机地址
-    $dbuser = 'nasadmin';        // mysql用户名
-    $dbpass = 'naspasswd';       // mysql用户名密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 查找$device_mac是否存在
     $sql = "SELECT `device_mac` FROM `device_tbl` ".
@@ -509,19 +520,20 @@ function getFirmwareUpdate($device_mac, $firmware_version)
         if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) !== null) {
             if ($row['required_version'] !== '') {
                 if ($row['required_version'] !== $firmware_version) {
+                    // 设备固件运行版本与目标版本不符
                     $required_version = $row['required_version'];
-
-                    $ftp_server = "localhost";
-                    $ftp_user_name = "anonymous";
-                    $ftp_user_pass = "";
-                    // define some variables
-                    $local_file = '/tmp/firmware.bin';
+                    // 从FTP服务器获取固件
+                    $ftphost = FTP_HOST;    // ftp主机地址
+                    $ftpuser = FTP_USER;    // ftp用户名
+                    $ftppass = FTP_PASS;    // ftp用户密码
+                    $local_file = '/tmp/nas_'.$required_version.'.bin';
                     $server_file = 'pub/firmware/nas/nas_'.$required_version.'.bin';
-                    // connect to the FTP server
-                    $conn_id = ftp_connect($ftp_server);
-                    ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
-                    // try to download
+                    // 登录FTP服务器
+                    $conn_id = ftp_connect($ftphost);
+                    ftp_login($conn_id, $ftpuser, $ftppass);
+                    // 获取目标版本固件
                     if (ftp_get($conn_id, $local_file, $server_file, FTP_BINARY)) {
+                        // 固件获取成功，发送数据到设备端，记录日志
                         $sql = "INSERT INTO `log_tbl` ".
                                 "(`user_id`, `device_location`, `comment`) ".
                                 "VALUES ('".$device_mac."', '固件更新', '正在更新，从".
@@ -530,15 +542,15 @@ function getFirmwareUpdate($device_mac, $firmware_version)
                         if (!$retval) {
                             die('数据库异常');
                         }
-                        $firmware_file = "/tmp/firmware.bin";
-                        $file = fopen($firmware_file, "rb");
+                        $file = fopen($local_file, "rb");
                         header("Content-type: application/octet-stream");
                         header("Accept-Ranges: bytes");
-                        header("Accept-Length: ".filesize($firmware_file));
-                        header("Content-Disposition: attachment; filename=firmware.bin");
-                        echo fread($file, filesize($firmware_file));
+                        header("Accept-Length: ".filesize($local_file));
+                        header("Content-Disposition: attachment; filename=nas_".$required_version.".bin");
+                        echo fread($file, filesize($local_file));
                         fclose($file);
                     } else {
+                        // 目标版本固件不存在，记录日志
                         $sql = "INSERT INTO `log_tbl` ".
                                 "(`user_id`, `device_location`, `comment`) ".
                                 "VALUES ('".$device_mac."', '固件更新', '失败：目标版本".
@@ -548,7 +560,7 @@ function getFirmwareUpdate($device_mac, $firmware_version)
                             die('数据库异常');
                         }
                     }
-                    // close the connection
+                    // 断开FTP连接
                     ftp_close($conn_id);
                 } else {
                     // 没有新固件，记录日志
@@ -597,16 +609,16 @@ function getFirmwareUpdate($device_mac, $firmware_version)
  */
 function updatePassword($wx_openid, $user_id, $old_passwd, $new_passwd)
 {
-    $dbhost = 'localhost:3306';  // mysql服务器主机地址
-    $dbuser = 'nasadmin';        // mysql用户名
-    $dbpass = 'naspasswd';       // mysql用户名密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 使用$wx_openid查找$user_id
     $sql = "SELECT `user_id` FROM `wechat_tbl` ".
@@ -699,16 +711,16 @@ function updatePassword($wx_openid, $user_id, $old_passwd, $new_passwd)
  */
 function listLog()
 {
-    $dbhost = 'localhost:3306';  // mysql服务器主机地址
-    $dbuser = 'nasadmin';        // mysql用户名
-    $dbpass = 'naspasswd';       // mysql用户名密码
+    $dbhost = DB_HOST;  // mysql主机地址
+    $dbuser = DB_USER;  // mysql用户名
+    $dbpass = DB_PASS;  // mysql用户密码
     $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
     if (!$conn) {
         die('无法访问数据库');
     }
     // 设置编码，防止中文乱码
     mysqli_query($conn, "set names utf8");
-    mysqli_select_db($conn, 'nas_db');
+    mysqli_select_db($conn, DB_NAME);
 
     // 查询log_tbl中的最后20列
     $sql = "SELECT * FROM ".
