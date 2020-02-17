@@ -1,8 +1,9 @@
+CREATE DATABASE nas_db;
+USE nas_db;
+
 --
 -- Table structure for table `device_tbl`
 --
-
-DROP TABLE IF EXISTS `device_tbl`;
 
 CREATE TABLE `device_tbl` (
   `device_mac` varchar(100) NOT NULL DEFAULT 'null',
@@ -18,8 +19,6 @@ CREATE TABLE `device_tbl` (
 -- Table structure for table `log_tbl`
 --
 
-DROP TABLE IF EXISTS `log_tbl`;
-
 CREATE TABLE `log_tbl` (
   `user_id` varchar(100) NOT NULL DEFAULT 'null',
   `device_location` varchar(100) NOT NULL DEFAULT 'null',
@@ -32,8 +31,6 @@ CREATE TABLE `log_tbl` (
 -- Table structure for table `secure_tbl`
 --
 
-DROP TABLE IF EXISTS `secure_tbl`;
-
 CREATE TABLE `secure_tbl` (
   `app_id` varchar(100) NOT NULL DEFAULT 'null',
   `app_secret` varchar(100) NOT NULL DEFAULT 'null',
@@ -43,8 +40,6 @@ CREATE TABLE `secure_tbl` (
 --
 -- Table structure for table `user_tbl`
 --
-
-DROP TABLE IF EXISTS `user_tbl`;
 
 CREATE TABLE `user_tbl` (
   `user_id` varchar(10) NOT NULL DEFAULT 'null',
@@ -56,8 +51,6 @@ CREATE TABLE `user_tbl` (
 --
 -- Table structure for table `wechat_tbl`
 --
-
-DROP TABLE IF EXISTS `wechat_tbl`;
 
 CREATE TABLE `wechat_tbl` (
   `user_id` varchar(10) NOT NULL DEFAULT 'null',
