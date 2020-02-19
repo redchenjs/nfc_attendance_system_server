@@ -20,6 +20,7 @@ const FTP_HOST = 'localhost';
 const FTP_USER = 'anonymous';
 const FTP_PASS = '';
 
+const TEST_USER = 'test';
 const WX_APP_ID = 'wx8d7f06fb7ba10c2d';
 
 /**
@@ -348,52 +349,65 @@ function bindUser($wx_openid, $user_id, $user_passwd)
                 die('数据库异常');
             }
             // 整理查询结果
-            if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) !== null) {
-                // $user_id已被绑定，记录日志
-                $sql = "INSERT INTO `log_tbl` ".
-                    "(`user_id`, `device_location`, `comment`) ".
-                    "VALUES ('".$user_id."', '微信绑定', '失败：用户已被绑定')";
-                $retval = mysqli_query($conn, $sql);
-                if (!$retval) {
-                    die('数据库异常');
-                }
-                // 返回错误信息
-                return '用户已被绑定';
-            } else {
+            if ($user_id === TEST_USER || ($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) === null) {
                 // $user_id未被绑定，生成$user_token
                 $user_token = md5(
                     $wx_openid.$user_id.$user_passwd.date('Y-m-d H:i:s')
                 );
                 // 更新$wx_openid对应的$user_id和$user_token
                 $sql = "UPDATE `wechat_tbl` ".
-                "SET `user_id`='".$user_id."', `user_token`='".$user_token."'".
-                "WHERE BINARY `wx_openid`='".$wx_openid."'";
+                        "SET `user_id`='".$user_id."', `user_token`='".$user_token."'".
+                        "WHERE BINARY `wx_openid`='".$wx_openid."'";
                 $retval = mysqli_query($conn, $sql);
                 if (! $retval ) {
                     die('数据库异常');
                 }
                 // 记录日志
                 $sql = "INSERT INTO `log_tbl` ".
-                    "(`user_id`, `device_location`, `comment`) ".
-                    "VALUES ('".$user_id."', '微信绑定', '成功')";
+                        "(`user_id`, `device_location`, `comment`) ".
+                        "VALUES ('".$user_id."', '微信绑定', '成功')";
                 $retval = mysqli_query($conn, $sql);
                 if (!$retval) {
                     die('数据库异常');
                 }
                 // 返回结果
                 return true;
+            } else {
+                // $user_id已被绑定，记录日志
+                $sql = "INSERT INTO `log_tbl` ".
+                        "(`user_id`, `device_location`, `comment`) ".
+                        "VALUES ('".$user_id."', '微信绑定', '失败：用户已被绑定')";
+                $retval = mysqli_query($conn, $sql);
+                if (!$retval) {
+                    die('数据库异常');
+                }
+                // 返回错误信息
+                return '用户已被绑定';
             }
         } else {
-            // 密码校验不通过，记录日志
-            $sql = "INSERT INTO `log_tbl` ".
-                    "(`user_id`, `device_location`, `comment`) ".
-                    "VALUES ('".$user_id."', '微信绑定', '失败：密码错误')";
-            $retval = mysqli_query($conn, $sql);
-            if (!$retval) {
-                die('数据库异常');
+            if ($user_id === TEST_USER) {
+                // 提示测试用户正确密码，记录日志
+                $sql = "INSERT INTO `log_tbl` ".
+                        "(`user_id`, `device_location`, `comment`) ".
+                        "VALUES ('".$user_id."', '微信绑定', '失败：测试用户未输入正确密码')";
+                $retval = mysqli_query($conn, $sql);
+                if (!$retval) {
+                    die('数据库异常');
+                }
+                // 返回错误信息
+                return '密码：'.$row['user_passwd'];
+            } else {
+                // 密码校验不通过，记录日志
+                $sql = "INSERT INTO `log_tbl` ".
+                        "(`user_id`, `device_location`, `comment`) ".
+                        "VALUES ('".$user_id."', '微信绑定', '失败：密码错误')";
+                $retval = mysqli_query($conn, $sql);
+                if (!$retval) {
+                    die('数据库异常');
+                }
+                // 返回错误信息
+                return '密码错误';
             }
-            // 返回错误信息
-            return '密码错误';
         }
     } else {
         // $user_id记录不存在，记录日志
