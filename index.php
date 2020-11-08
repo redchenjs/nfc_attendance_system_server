@@ -23,8 +23,9 @@ const HTTP_REQ_CODE_APP_UPDATE_PSWD  = 114; // 微信端请求修改密码
 
 $data = file_get_contents("php://input");   // 获取POST数据
 $data = json_decode($data, true);           // 解析JSON
+$code = $data['request'];                   // 客户端请求码
 
-switch ($data['request']) {
+switch ($code) {
 case HTTP_REQ_CODE_DEV_VERIFY_TOKEN:
     $device_mac = $data['device_mac'];
     $user_token = $data['user_token'];
