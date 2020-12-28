@@ -30,7 +30,7 @@ case HTTP_REQ_CODE_DEV_VERIFY_TOKEN:
     $device_mac = $data['device_mac'];
     $user_token = $data['user_token'];
     $arr = array(
-        'status' => verifyUserToken($device_mac, $user_token)
+        'result' => verifyUserToken($device_mac, $user_token)
     );
     header('content-type:application/json');
     echo json_encode($arr);
@@ -43,26 +43,22 @@ case HTTP_REQ_CODE_DEV_UPDATE_FW:
 case HTTP_REQ_CODE_APP_GET_INFO:
     $wx_code = $data['wx_code'];
     if (($wx_openid = getOpenID($wx_code)) !== null) {
-        if ($wx_openid === 'null') {
-            $arr = array(
-                'status' => 'null'
-            );
-        } else if (($user_id = getUserID($wx_openid)) !== null) {
+        if (($user_id = getUserID($wx_openid)) !== null) {
             $last_info = getLastInfo($user_id);
             $arr = array(
-                'status' => true,
+                'result' => true,
                 'user_id' => $user_id,
-                'last_time' => $last_info['create_time'],
-                'last_location' => $last_info['device_location']
+                'last_time' => $last_info['last_time'],
+                'last_location' => $last_info['last_location']
             );
         } else {
             $arr = array(
-                'status' => false
+                'result' => false
             );
         }
     } else {
         $arr = array(
-            'status' => null
+            'result' => null
         );
     }
     header('content-type:application/json');
@@ -71,23 +67,14 @@ case HTTP_REQ_CODE_APP_GET_INFO:
 case HTTP_REQ_CODE_APP_GET_TOKEN:
     $wx_code = $data['wx_code'];
     if (($wx_openid = getOpenID($wx_code)) !== null) {
-        if ($wx_openid === 'null') {
-            $arr = array(
-                'status' => 'null'
-            );
-        } else if (($user_token = getUserToken($wx_openid)) !== null) {
-            $arr = array(
-                'status' => true,
-                'user_token' => $user_token
-            );
-        } else {
-            $arr = array(
-                'status' => false
-            );
-        }
+        $user_token = getUserToken($wx_openid);
+        $arr = array(
+            'result' => $user_token !== null ? true : false,
+            'user_token' => $user_token
+        );
     } else {
         $arr = array(
-            'status' => null
+            'result' => null
         );
     }
     header('content-type:application/json');
@@ -98,23 +85,14 @@ case HTTP_REQ_CODE_APP_BIND_USER:
     $user_id = $data['user_id'];
     $user_passwd = $data['user_passwd'];
     if (($wx_openid = getOpenID($wx_code)) !== null) {
-        if ($wx_openid === 'null') {
-            $arr = array(
-                'status' => 'null'
-            );
-        } else if (($hints = bindUser($wx_openid, $user_id, $user_passwd)) === true) {
-            $arr = array(
-                'status' => true
-            );
-        } else {
-            $arr = array(
-                'status' => false,
-                'hints' => $hints
-            );
-        }
+        $errmsg = bindUser($wx_openid, $user_id, $user_passwd);
+        $arr = array(
+            'result' => $errmsg === null ? true : false,
+            'errmsg' => $errmsg
+        );
     } else {
         $arr = array(
-            'status' => null
+            'result' => null
         );
     }
     header('content-type:application/json');
@@ -124,23 +102,14 @@ case HTTP_REQ_CODE_APP_UNBIND_USER:
     $wx_code = $data['wx_code'];
     $user_id = $data['user_id'];
     if (($wx_openid = getOpenID($wx_code)) !== null) {
-        if ($wx_openid === 'null') {
-            $arr = array(
-                'status' => 'null'
-            );
-        } else if (($hints = unbindUser($wx_openid, $user_id)) === true) {
-            $arr = array(
-                'status' => true
-            );
-        } else {
-            $arr = array(
-                'status' => false,
-                'hints' => $hints
-            );
-        }
+        $errmsg = unbindUser($wx_openid, $user_id);
+        $arr = array(
+            'result' => $errmsg === null ? true : false,
+            'errmsg' => $errmsg
+        );
     } else {
         $arr = array(
-            'status' => null
+            'result' => null
         );
     }
     header('content-type:application/json');
@@ -152,23 +121,14 @@ case HTTP_REQ_CODE_APP_UPDATE_PSWD:
     $old_passwd = $data['old_passwd'];
     $new_passwd = $data['new_passwd'];
     if (($wx_openid = getOpenID($wx_code)) !== null) {
-        if ($wx_openid === 'null') {
-            $arr = array(
-                'status' => 'null'
-            );
-        } else if (($hints = updatePassword($wx_openid, $user_id, $old_passwd, $new_passwd)) === true) {
-            $arr = array(
-                'status' => true
-            );
-        } else {
-            $arr = array(
-                'status' => false,
-                'hints' => $hints
-            );
-        }
+        $errmsg = updatePassword($wx_openid, $user_id, $old_passwd, $new_passwd);
+        $arr = array(
+            'result' => $errmsg === null ? true : false,
+            'errmsg' => $errmsg
+        );
     } else {
         $arr = array(
-            'status' => null
+            'result' => null
         );
     }
     header('content-type:application/json');

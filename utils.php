@@ -33,10 +33,7 @@ const WX_APP_ID = 'wx8d7f06fb7ba10c2d';
  */
 function verifyUserToken($device_mac, $user_token)
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
@@ -97,14 +94,11 @@ function verifyUserToken($device_mac, $user_token)
  * @param string $device_mac Device MAC Address
  * @param string $fw_version Firmware Version
  *
- * @return null/file
+ * @return file $file
  */
 function getFirmwareUpdate($device_mac, $fw_version)
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
@@ -140,15 +134,11 @@ function getFirmwareUpdate($device_mac, $fw_version)
                 if ($row['required_version'] !== $fw_version) {
                     // 设备固件运行版本与目标版本不符
                     $required_version = $row['required_version'];
-                    // 从FTP服务器获取固件
-                    $ftphost = FTP_HOST;    // ftp主机地址
-                    $ftpuser = FTP_USER;    // ftp用户名
-                    $ftppass = FTP_PASS;    // ftp用户密码
                     $local_file = "/tmp/nas_$required_version.bin";
                     $server_file = "pub/firmware/nas/nas_$required_version.bin";
                     // 登录FTP服务器
-                    $conn_id = ftp_connect($ftphost);
-                    ftp_login($conn_id, $ftpuser, $ftppass);
+                    $conn_id = ftp_connect(FTP_HOST);
+                    ftp_login($conn_id, FTP_USER, FTP_PASS);
                     // 获取目标版本固件
                     if (ftp_get($conn_id, $local_file, $server_file, FTP_BINARY)) {
                         // 固件获取成功，发送数据到设备端，记录日志
@@ -215,10 +205,7 @@ function getFirmwareUpdate($device_mac, $fw_version)
  */
 function getOpenID($wx_code)
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
@@ -260,7 +247,7 @@ function getOpenID($wx_code)
             // 判断$wx_openid是否为空
             if ($wx_openid === null) {
                 // 服务器返回空数据，优雅退出
-                return 'null';
+                return null;
             }
         } else {
             // 查不到$app_secret，优雅退出
@@ -305,10 +292,7 @@ function getOpenID($wx_code)
  */
 function getUserID($wx_openid)
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
@@ -325,7 +309,7 @@ function getUserID($wx_openid)
     // 整理查询结果
     if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) !== null) {
         // 记录存在
-        if ($row['user_id'] !== 'null') {
+        if ($row['user_id'] !== '') {
             // 返回$user_id
             return $row['user_id'];
         }
@@ -343,10 +327,7 @@ function getUserID($wx_openid)
  */
 function getLastInfo($user_id)
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
@@ -365,14 +346,14 @@ function getLastInfo($user_id)
     if (($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) !== null) {
         // 记录存在
         $last_info = array(
-            'device_location' => $row['device_location'],
-            'create_time' => $row['create_time']
+            'last_time' => $row['create_time'],
+            'last_location' => $row['device_location']
         );
     } else {
         // 记录不存在
         $last_info = array(
-            'device_location' => '无',
-            'create_time' => '无'
+            'last_time' => '无',
+            'last_location' => '无'
         );
     }
     // 返回结果
@@ -388,10 +369,7 @@ function getLastInfo($user_id)
  */
 function getUserToken($wx_openid)
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
@@ -422,14 +400,11 @@ function getUserToken($wx_openid)
  * @param string $user_id     User ID
  * @param string $user_passwd User Password
  *
- * @return bool/string true/$hints
+ * @return string $errmsg
  */
 function bindUser($wx_openid, $user_id, $user_passwd)
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
@@ -474,8 +449,8 @@ function bindUser($wx_openid, $user_id, $user_passwd)
                 if (!$retval) {
                     die('Query failed.');
                 }
-                // 返回结果
-                return true;
+                // 返回错误信息
+                return null;
             } else {
                 // $user_id已被绑定，记录日志
                 $sql = "INSERT INTO `log_tbl` (`user_id`, `device_location`, `comment`)
@@ -529,14 +504,11 @@ function bindUser($wx_openid, $user_id, $user_passwd)
  * @param string $wx_openid WeChat Open ID
  * @param string $user_id   User ID
  *
- * @return bool/string true/$hints
+ * @return string $errmsg
  */
 function unbindUser($wx_openid, $user_id)
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
@@ -553,7 +525,7 @@ function unbindUser($wx_openid, $user_id)
     // 整理查询结果
     if (mysqli_fetch_array($retval, MYSQLI_ASSOC) !== null) {
         // $user_id记录存在，清空$user_id和$user_token
-        $sql = "UPDATE `wechat_tbl` SET `user_id`='null', `user_token`='null'
+        $sql = "UPDATE `wechat_tbl` SET `user_id`='', `user_token`=''
                 WHERE BINARY `wx_openid`='$wx_openid'";
         $retval = mysqli_query($conn, $sql);
         if (!$retval) {
@@ -566,8 +538,8 @@ function unbindUser($wx_openid, $user_id)
         if (!$retval) {
             die('Query failed.');
         }
-        // 返回结果
-        return true;
+        // 返回错误信息
+        return null;
     } else {
         // $user_id记录不存在，记录日志
         $sql = "INSERT INTO `log_tbl` (`user_id`, `device_location`, `comment`)
@@ -589,14 +561,11 @@ function unbindUser($wx_openid, $user_id)
  * @param string $old_passwd Old Password
  * @param string $new_passwd New Password
  *
- * @return bool/string true/$hints
+ * @return string $errmsg
  */
 function updatePassword($wx_openid, $user_id, $old_passwd, $new_passwd)
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
@@ -631,7 +600,7 @@ function updatePassword($wx_openid, $user_id, $old_passwd, $new_passwd)
                     die('Query failed.');
                 }
                 // 解绑用户，清空$user_id和$user_token
-                $sql = "UPDATE `wechat_tbl` SET `user_id`='null', `user_token`='null'
+                $sql = "UPDATE `wechat_tbl` SET `user_id`='', `user_token`=''
                         WHERE BINARY `wx_openid`='$wx_openid'";
                 $retval = mysqli_query($conn, $sql);
                 if (!$retval) {
@@ -644,8 +613,8 @@ function updatePassword($wx_openid, $user_id, $old_passwd, $new_passwd)
                 if (!$retval) {
                     die('Query failed.');
                 }
-                // 返回结果
-                return true;
+                // 返回错误信息
+                return null;
             } else {
                 // 密码校验错误，记录日志
                 $sql = "INSERT INTO `log_tbl` (`user_id`, `device_location`, `comment`)
@@ -688,17 +657,14 @@ function updatePassword($wx_openid, $user_id, $old_passwd, $new_passwd)
  */
 function listLog()
 {
-    $dbhost = DB_HOST;  // mysql主机地址
-    $dbuser = DB_USER;  // mysql用户名
-    $dbpass = DB_PASS;  // mysql用户密码
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
     if (!$conn) {
         die('Access denied.');
     }
     mysqli_select_db($conn, DB_NAME);
     mysqli_set_charset($conn, 'utf8');
 
-    // 查询log_tbl中的最后20列
+    // 查询log_tbl中的最后20条记录
     $sql = "SELECT * FROM (SELECT * FROM `log_tbl` ORDER BY `create_time` DESC LIMIT 20)
             AS `tbl` ORDER BY `create_time` ASC";
     $retval = mysqli_query($conn, $sql);
