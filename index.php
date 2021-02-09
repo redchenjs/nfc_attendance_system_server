@@ -7,39 +7,27 @@
  * @package  None
  * @author   Jack Chen <redchenjs@live.com>
  * @license  https://server.zyiot.top/nas public
- * @version  GIT: <v2.5>
+ * @version  GIT: <v2.6>
  * @link     https://server.zyiot.top/nas
  */
 
-require "utils.php";
+require 'utils/app.php';
+require 'utils/dev.php';
+require 'utils/web.php';
 
-const HTTP_REQ_CODE_DEV_VERIFY_TOKEN = 100; // 设备端请求口令验证
-const HTTP_REQ_CODE_DEV_UPDATE_FW    = 101; // 设备端请求固件更新
 const HTTP_REQ_CODE_APP_GET_INFO     = 110; // 微信端获取用户信息
 const HTTP_REQ_CODE_APP_GET_TOKEN    = 111; // 微信端获取验证口令
 const HTTP_REQ_CODE_APP_BIND_USER    = 112; // 微信端请求绑定用户
 const HTTP_REQ_CODE_APP_UNBIND_USER  = 113; // 微信端请求解绑用户
 const HTTP_REQ_CODE_APP_UPDATE_PSWD  = 114; // 微信端请求修改密码
+const HTTP_REQ_CODE_DEV_VERIFY_TOKEN = 210; // 设备端请求口令验证
+const HTTP_REQ_CODE_DEV_UPDATE_FW    = 211; // 设备端请求固件更新
 
-$data = file_get_contents("php://input");   // 获取POST数据
+$data = file_get_contents('php://input');   // 获取POST数据
 $data = json_decode($data, true);           // 解析JSON
 $code = $data['request'];                   // 客户端请求码
 
 switch ($code) {
-case HTTP_REQ_CODE_DEV_VERIFY_TOKEN:
-    $device_mac = $data['device_mac'];
-    $user_token = $data['user_token'];
-    $arr = array(
-        'result' => verifyUserToken($device_mac, $user_token)
-    );
-    header('content-type:application/json');
-    echo json_encode($arr);
-    break;
-case HTTP_REQ_CODE_DEV_UPDATE_FW:
-    $device_mac = $data['device_mac'];
-    $fw_version = $data['fw_version'];
-    getFirmwareUpdate($device_mac, $fw_version);
-    break;
 case HTTP_REQ_CODE_APP_GET_INFO:
     $wx_code = $data['wx_code'];
     if (($wx_openid = getOpenID($wx_code)) !== null) {
@@ -133,6 +121,20 @@ case HTTP_REQ_CODE_APP_UPDATE_PSWD:
     }
     header('content-type:application/json');
     echo json_encode($arr);
+    break;
+case HTTP_REQ_CODE_DEV_VERIFY_TOKEN:
+    $device_mac = $data['device_mac'];
+    $user_token = $data['user_token'];
+    $arr = array(
+        'result' => verifyUserToken($device_mac, $user_token)
+    );
+    header('content-type:application/json');
+    echo json_encode($arr);
+    break;
+case HTTP_REQ_CODE_DEV_UPDATE_FW:
+    $device_mac = $data['device_mac'];
+    $fw_version = $data['fw_version'];
+    getFirmwareUpdate($device_mac, $fw_version);
     break;
 default:
     listLog();
