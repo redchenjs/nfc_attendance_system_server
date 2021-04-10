@@ -54,3 +54,7 @@ CREATE TABLE `token_tbl` (
   `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`wx_openid`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+--
+-- Grants for database `nas_db`
+--
+GRANT ALL ON nas_db.* TO 'nasadmin'@'localhost' IDENTIFIED BY 'naspasswd';

@@ -6,18 +6,10 @@
  * @category None
  * @package  None
  * @author   Jack Chen <redchenjs@live.com>
- * @license  https://server.zyiot.top/nas public
- * @version  GIT: <v2.6>
- * @link     https://server.zyiot.top/nas
+ * @license  https://zyiot.top/nas public
+ * @version  GIT: <v2.6.1>
+ * @link     https://zyiot.top/nas
  */
-
-const DB_HOST = 'localhost:3306';
-const DB_USER = 'nasadmin';
-const DB_PASS = 'naspasswd';
-const DB_NAME = 'nas_db';
-
-const TEST_USER = 'test';
-const WX_APP_ID = 'wx8d7f06fb7ba10c2d';
 
 /**
  * 使用$wx_code换取$wx_openid，请求结果将被缓存

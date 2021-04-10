@@ -6,15 +6,10 @@
  * @category None
  * @package  None
  * @author   Jack Chen <redchenjs@live.com>
- * @license  https://server.zyiot.top/nas public
- * @version  GIT: <v2.6>
- * @link     https://server.zyiot.top/nas
+ * @license  https://zyiot.top/nas public
+ * @version  GIT: <v2.6.1>
+ * @link     https://zyiot.top/nas
  */
-
-const DB_HOST = 'localhost:3306';
-const DB_USER = 'nasadmin';
-const DB_PASS = 'naspasswd';
-const DB_NAME = 'nas_db';
 
 /**
  * 显示系统日志
